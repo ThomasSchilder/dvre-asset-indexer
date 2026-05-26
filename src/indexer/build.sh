@@ -1,0 +1,1 @@
+docker build -t thomasschilder/dvre-asset-indexer:latest ./

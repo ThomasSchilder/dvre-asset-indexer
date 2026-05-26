@@ -1,0 +1,34 @@
+replicaCount: 1
+
+image:
+  repository: thomasschilder/dvre-asset-indexer
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+securityContext: {}
+
+resources: {}
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+env:
+  RPC_URL: ""
+  PG_HOST: ""
+  PG_PORT: ""
+  PG_USER: ""
+  PG_DATABASE: ""
+  CATCHUP_BATCH_SIZE: ""
+  GAP_CHECK_INTERVAL: ""
+
+secrets:
+  PG_PASSWORD: ""

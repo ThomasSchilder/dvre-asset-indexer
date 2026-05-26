@@ -1,0 +1,6 @@
+apiVersion: v2
+name: dvre-asset-indexer
+description: Blockchain event indexer for Hyperledger Besu with PostgreSQL storage
+type: application
+version: 0.1.0
+appVersion: "0.0.1"

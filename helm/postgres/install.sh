@@ -2,4 +2,8 @@
 #!/bin/bash
 set -e
 
-helm install postgresql bitnami/postgresql -n postgres -f dev-values.yaml
+# Install secrets
+kubectl apply -f dev-secrets.yaml
+
+# Install Postgres 18 using helm
+helm install postgresql ./postgresql-18.6.7.tgz -n postgres -f dev-values.yaml
