@@ -6,7 +6,7 @@ export class PostgresStore {
     this.pool = new pg.Pool(config.pg);
   }
 
-  async init() {
+  async init(normalizers = []) {
     await this.pool.query(`
       CREATE TABLE IF NOT EXISTS contracts (
         id SERIAL PRIMARY KEY,
@@ -35,6 +35,27 @@ export class PostgresStore {
       CREATE INDEX IF NOT EXISTS idx_events_name ON events(event_name);
     `);
     console.log("Database tables initialized");
+
+    for (const normalizer of normalizers) {
+      await this.createNormalizedTable(normalizer.tableName, normalizer.columns);
+    }
+  }
+
+  async createNormalizedTable(tableName, columns) {
+    const colDefs = columns.map((c) => `${c.name} ${c.type}`).join(", ");
+    await this.pool.query(`CREATE TABLE IF NOT EXISTS ${tableName} (${colDefs})`);
+    console.log(`Normalized table "${tableName}" initialized`);
+  }
+
+  async insertNormalized(tableName, data, conflictColumn) {
+    const keys = Object.keys(data);
+    const values = Object.values(data);
+    const placeholders = keys.map((_, i) => `$${i + 1}`).join(", ");
+    const colNames = keys.join(", ");
+    await this.pool.query(
+      `INSERT INTO ${tableName} (${colNames}) VALUES (${placeholders}) ON CONFLICT (${conflictColumn}) DO NOTHING`,
+      values
+    );
   }
 
   async store(event) {
@@ -87,10 +108,6 @@ export class PostgresStore {
       [address, name, abiBuffer, startBlock]
     );
     console.log(`Upserted: ${result.rows[0].name} (${result.rows[0].address}) — id ${result.rows[0].id}`);
-  }
-
-  async search(query) {
-    throw new Error("PostgresStore.search() not implemented yet");
   }
 
   async close() {

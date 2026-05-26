@@ -1,0 +1,265 @@
+openapi: "3.0.3"
+info:
+  title: DVRE Asset Catalogue API
+  description: REST API for querying indexed blockchain events and normalized assets
+  version: "0.1.0"
+servers:
+  - url: http://localhost:3000
+paths:
+  /api/health:
+    get:
+      summary: Health check
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+  /api/assets:
+    get:
+      summary: List assets
+      parameters:
+        - name: name
+          in: query
+          schema:
+            type: string
+          description: Filter by name (case-insensitive, partial match)
+        - name: owner
+          in: query
+          schema:
+            type: string
+          description: Filter by owner address (partial match)
+        - name: asset_type
+          in: query
+          schema:
+            type: integer
+          description: Filter by asset type
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 500
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: Paginated list of assets
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Asset"
+
+  /api/assets/{id}:
+    get:
+      summary: Get asset by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Asset details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Asset"
+        "404":
+          description: Not found
+
+  /api/events:
+    get:
+      summary: List raw events
+      parameters:
+        - name: contract_address
+          in: query
+          schema:
+            type: string
+          description: Filter by contract address
+        - name: event_name
+          in: query
+          schema:
+            type: string
+          description: Filter by event name
+        - name: block_number
+          in: query
+          schema:
+            type: integer
+          description: Exact block number
+        - name: from_block
+          in: query
+          schema:
+            type: integer
+          description: Block number >=
+        - name: to_block
+          in: query
+          schema:
+            type: integer
+          description: Block number <=
+        - name: q
+          in: query
+          schema:
+            type: string
+          description: Search in event args (text search)
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 500
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: Paginated list of events
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Event"
+
+  /api/events/{id}:
+    get:
+      summary: Get event by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Event details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+        "404":
+          description: Not found
+
+  /api/contracts:
+    get:
+      summary: List indexed contracts
+      responses:
+        "200":
+          description: List of contracts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Contract"
+
+  /api/contracts/{address}:
+    get:
+      summary: Get contract by address
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Contract details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contract"
+        "404":
+          description: Not found
+
+components:
+  schemas:
+    Asset:
+      type: object
+      properties:
+        asset_id:
+          type: integer
+        asset_type:
+          type: integer
+        owner:
+          type: string
+        name:
+          type: string
+        url:
+          type: string
+        protocol:
+          type: integer
+        metadata:
+          type: string
+        created_block:
+          type: integer
+
+    Event:
+      type: object
+      properties:
+        id:
+          type: integer
+        contract_address:
+          type: string
+        event_name:
+          type: string
+        block_number:
+          type: integer
+        transaction_hash:
+          type: string
+        log_index:
+          type: integer
+        timestamp:
+          type: string
+          nullable: true
+        args:
+          type: object
+
+    Contract:
+      type: object
+      properties:
+        id:
+          type: integer
+        address:
+          type: string
+        name:
+          type: string
+        start_block:
+          type: integer
+        last_indexed_block:
+          type: integer
+          nullable: true
+        created_at:
+          type: string

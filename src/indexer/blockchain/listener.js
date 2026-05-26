@@ -12,20 +12,24 @@ function logError(name, ...args) {
   console.error(`[${new Date().toISOString()}] [${name}]`, ...args);
 }
 
-export function startListener(contracts, store, provider) {
+export function startListener(contracts, store, provider, normalizers = {}) {
   for (const entry of contracts) {
-    listenToContract(entry, store, provider);
+    listenToContract(entry, store, provider, normalizers);
   }
 }
 
-function listenToContract(entry, store, provider) {
+function listenToContract(entry, store, provider, normalizers) {
   const { contract, address, name, startBlock } = entry;
   const topicHashes = getTopicHashes(contract);
+  const normalizer = normalizers[name] || null;
 
   log(name, `Starting listener for ${topicHashes.length} event(s)`);
+  if (normalizer) {
+    log(name, `Normalizer active → ${normalizer.tableName}`);
+  }
 
-  runCatchUp(contract, address, name, startBlock, topicHashes, store, provider);
-  startPolling(contract, address, name, topicHashes, store, provider);
+  runCatchUp(contract, address, name, startBlock, topicHashes, store, provider, normalizer);
+  startPolling(contract, address, name, topicHashes, store, provider, normalizer);
 }
 
 function getTopicHashes(contract) {
@@ -34,7 +38,7 @@ function getTopicHashes(contract) {
     .map((f) => contract.interface.getEvent(f.name).topicHash);
 }
 
-async function runCatchUp(contract, address, name, startBlock, topicHashes, store, provider) {
+async function runCatchUp(contract, address, name, startBlock, topicHashes, store, provider, normalizer) {
   try {
     const lastIndexed = await store.getLastIndexedBlock(address);
     const fromBlock = lastIndexed !== null ? lastIndexed + 1 : startBlock;
@@ -66,6 +70,7 @@ async function runCatchUp(contract, address, name, startBlock, topicHashes, stor
           const event = normalizeEvent(rawLog, contract.interface);
           event.contractAddress = address;
           await store.store(event);
+          await applyNormalizer(normalizer, event, store, name);
           log(name, `Event: ${event.eventName} at block ${event.blockNumber}`);
         } catch (err) {
           if (!err.message?.includes("duplicate")) {
@@ -84,7 +89,7 @@ async function runCatchUp(contract, address, name, startBlock, topicHashes, stor
   }
 }
 
-function startPolling(contract, address, name, topicHashes, store, provider) {
+function startPolling(contract, address, name, topicHashes, store, provider, normalizer) {
   log(name, "Starting polling for new events...");
   const interval = setInterval(async () => {
     try {
@@ -95,7 +100,7 @@ function startPolling(contract, address, name, topicHashes, store, provider) {
 
       if (currentBlock - lastIndexed > 5) {
         log(name, `Gap detected: last indexed ${lastIndexed}, current ${currentBlock}. Filling gap...`);
-        await runCatchUp(contract, address, name, null, topicHashes, store, provider);
+        await runCatchUp(contract, address, name, null, topicHashes, store, provider, normalizer);
       } else if (currentBlock > lastIndexed) {
         await store.updateLastIndexedBlock(address, currentBlock);
       }
@@ -105,4 +110,18 @@ function startPolling(contract, address, name, topicHashes, store, provider) {
   }, CHECK_INTERVAL);
 
   return interval;
+}
+
+async function applyNormalizer(normalizer, event, store, contractName) {
+  if (!normalizer) return;
+  if (!normalizer.handlers[event.eventName]) return;
+
+  try {
+    const result = normalizer.handlers[event.eventName](event.args, event.blockNumber);
+    if (result.action === "INSERT") {
+      await store.insertNormalized(normalizer.tableName, result.data, normalizer.conflictColumn);
+    }
+  } catch (err) {
+    logError(contractName, `Normalizer error for ${event.eventName}:`, err.message);
+  }
 }

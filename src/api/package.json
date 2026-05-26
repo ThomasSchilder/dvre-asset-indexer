@@ -1,0 +1,20 @@
+{
+  "name": "dvre-asset-api",
+  "version": "0.0.1",
+  "description": "REST API for the DVRE asset catalogue",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "author": "ThomasSchilder",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.1",
+    "pg": "^8.13.1",
+    "swagger-ui-express": "^5.0.1",
+    "yaml": "^2.6.1"
+  }
+}
