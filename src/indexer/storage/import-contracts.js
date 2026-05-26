@@ -5,6 +5,8 @@ import { PostgresStore } from "./postgres.js";
 
 const CONTRACTS_FILE = path.resolve("contracts.json");
 
+let store;
+
 async function importContracts() {
   if (!fs.existsSync(CONTRACTS_FILE)) {
     console.error(`No contracts.json found at ${CONTRACTS_FILE}`);
@@ -17,7 +19,7 @@ async function importContracts() {
     process.exit(1);
   }
 
-  const store = new PostgresStore();
+  store = new PostgresStore();
   await store.init();
 
   for (const entry of contracts) {
@@ -44,7 +46,8 @@ async function importContracts() {
   console.log("Import complete.");
 }
 
-importContracts().catch((err) => {
+importContracts().catch(async (err) => {
   console.error("Import error:", err);
+  if (store) await store.close();
   process.exit(1);
 });
