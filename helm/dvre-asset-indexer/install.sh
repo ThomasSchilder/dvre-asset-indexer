@@ -1,4 +1,4 @@
 #!/bin/bash
 set -e
 
-helm install dvre-asset-indexer ./ -n asset-indexer "$@"
+helm upgrade --install dvre-asset-indexer ./ -n asset-indexer -f dev-values.yaml
