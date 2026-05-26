@@ -1,0 +1,20 @@
+{
+  "name": "dvre-asset-indexer",
+  "version": "0.0.1",
+  "description": "Config-driven blockchain event indexer with PostgreSQL storage and search API",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "import-contracts": "node src/storage/import-contracts.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "ThomasSchilder",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "ethers": "^6.13.4",
+    "pg": "^8.13.1"
+  }
+}
