@@ -1,4 +1,4 @@
-import config from "./config/index.js";
+import config from "./config.js";
 import { verifyConnection, createContracts, getProvider } from "./blockchain/provider.js";
 import { startListener } from "./blockchain/listener.js";
 import { PostgresStore } from "./storage/postgres.js";

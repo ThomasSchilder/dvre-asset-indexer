@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import "../config.js";
 import { PostgresStore } from "./postgres.js";
 
 const CONTRACTS_FILE = path.resolve("contracts.json");

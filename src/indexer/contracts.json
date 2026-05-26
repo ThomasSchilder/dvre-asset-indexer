@@ -2,7 +2,7 @@
   {
     "address": "0x1d4923562c98924d65588aa4D6C66c3b1A752898",
     "name": "AssetV1",
-    "abiPath": "./src/abis/AssetV1.json",
+    "abiPath": "./abis/AssetV1.json",
     "startBlock": 0
   }
 ]

@@ -1,5 +1,5 @@
 import { normalizeEvent } from "../processor/index.js";
-import config from "../config/index.js";
+import config from "../config.js";
 
 const BATCH_SIZE = config.indexer.catchupBatchSize;
 const CHECK_INTERVAL = config.indexer.gapCheckInterval;
