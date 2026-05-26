@@ -141,3 +141,12 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# helm
+**/dev-values.yaml
+**/dev-secrets.yaml
+**/prod-values.yaml
+**/prod-secrets.yaml
+
+#env
+environment.json
