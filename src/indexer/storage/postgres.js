@@ -47,13 +47,17 @@ export class PostgresStore {
     console.log(`Normalized table "${tableName}" initialized`);
   }
 
-  async insertNormalized(tableName, data, conflictColumn) {
+  async upsertNormalized(tableName, data, conflictColumn) {
     const keys = Object.keys(data);
     const values = Object.values(data);
     const placeholders = keys.map((_, i) => `$${i + 1}`).join(", ");
     const colNames = keys.join(", ");
+    const updateClause = keys
+      .filter((k) => k !== conflictColumn)
+      .map((k) => `${k} = EXCLUDED.${k}`)
+      .join(", ");
     await this.pool.query(
-      `INSERT INTO ${tableName} (${colNames}) VALUES (${placeholders}) ON CONFLICT (${conflictColumn}) DO NOTHING`,
+      `INSERT INTO ${tableName} (${colNames}) VALUES (${placeholders}) ON CONFLICT (${conflictColumn}) DO UPDATE SET ${updateClause}`,
       values
     );
   }

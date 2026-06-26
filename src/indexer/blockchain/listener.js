@@ -118,8 +118,8 @@ async function applyNormalizer(normalizer, event, store, contractName) {
 
   try {
     const result = normalizer.handlers[event.eventName](event.args, event.blockNumber);
-    if (result.action === "INSERT") {
-      await store.insertNormalized(normalizer.tableName, result.data, normalizer.conflictColumn);
+    if (result.action === "UPSERT") {
+      await store.upsertNormalized(normalizer.tableName, result.data, normalizer.conflictColumn);
     }
   } catch (err) {
     logError(contractName, `Normalizer error for ${event.eventName}:`, err.message);

@@ -1,6 +1,6 @@
 [
   {
-    "address": "0x1d4923562c98924d65588aa4D6C66c3b1A752898",
+    "address": "0x193455C053bDe0B85Cd535C6425070B1774bF1af",
     "name": "AssetV1",
     "abiPath": "./abis/AssetV1.json",
     "startBlock": 0

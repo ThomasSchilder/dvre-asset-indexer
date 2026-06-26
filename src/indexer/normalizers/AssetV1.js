@@ -10,10 +10,11 @@ export default {
     { name: "protocol", type: "SMALLINT" },
     { name: "metadata", type: "TEXT" },
     { name: "created_block", type: "INTEGER" },
+    { name: "policy_address", type: "TEXT" },
   ],
   handlers: {
     AssetCreated: (args, blockNumber) => ({
-      action: "INSERT",
+      action: "UPSERT",
       data: {
         asset_id: args.assetId,
         asset_type: args.assetType,
@@ -23,6 +24,16 @@ export default {
         protocol: args.protocol,
         metadata: args.metadata,
         created_block: blockNumber,
+      },
+    }),
+    AssetPolicySet: (args) => ({
+      action: "UPSERT",
+      data: {
+        asset_id: args.assetId,
+        policy_address:
+          args.policyAddress === "0x0000000000000000000000000000000000000000"
+            ? null
+            : args.policyAddress,
       },
     }),
   },
