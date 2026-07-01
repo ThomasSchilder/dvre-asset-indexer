@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yaml";
 import fs from "fs";
@@ -12,6 +13,8 @@ import contractsRouter from "./routes/contracts.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
+
+app.use(cors());
 
 const openapiPath = path.join(__dirname, "openapi.yaml");
 if (fs.existsSync(openapiPath)) {
