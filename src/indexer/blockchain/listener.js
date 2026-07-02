@@ -98,11 +98,8 @@ function startPolling(contract, address, name, topicHashes, store, provider, nor
 
       if (lastIndexed === null) return;
 
-      if (currentBlock - lastIndexed > 5) {
-        log(name, `Gap detected: last indexed ${lastIndexed}, current ${currentBlock}. Filling gap...`);
+      if (currentBlock > lastIndexed) {
         await runCatchUp(contract, address, name, null, topicHashes, store, provider, normalizer);
-      } else if (currentBlock > lastIndexed) {
-        await store.updateLastIndexedBlock(address, currentBlock);
       }
     } catch (err) {
       logError(name, "Polling error:", err.message);
