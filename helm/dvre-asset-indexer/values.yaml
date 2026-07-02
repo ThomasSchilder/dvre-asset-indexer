@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: thomasschilder/dvre-asset-indexer
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   tag: "latest"
 
 imagePullSecrets: []
